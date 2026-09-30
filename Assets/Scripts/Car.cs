@@ -61,6 +61,11 @@ public class Car : MonoBehaviour
 
     private List<Transform> wheels;
 
+    private float B = 3f;
+    private float C = 1.3f;
+    private float D = 1f;
+    private float E = 0.5f;
+
 
 
 
@@ -190,17 +195,7 @@ public class Car : MonoBehaviour
                 slipAngle = 0;
             }
 
-            float B = 3f;
-            float C = 1.3f;
-            float D = 1f;
-            float E = 0.5f;
-
             float tireForce = D * Mathf.Sin(C * Mathf.Atan(B * slipAngle - E * (B * slipAngle - Mathf.Atan(B * slipAngle))));
-
-            if (tireForce > 0.95f)
-            {
-                Debug.Log($"PROCHE DU LIMITEUR : {Mathf.Rad2Deg*slipAngle:F1}° | TireForce: {tireForce:F2}");
-            }
 
             wheel.GetComponent<Renderer>().material.color = new Color(tireForce, 0, 0);
 
