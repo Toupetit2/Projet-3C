@@ -45,6 +45,8 @@ public class PlayerMovement : MonoBehaviour
 
     private float curPitch = 0;
 
+    private Camera cam;
+
     void Awake()
     {
         actionMap = inputActions.FindActionMap("FirstPerson");
@@ -60,6 +62,8 @@ public class PlayerMovement : MonoBehaviour
         coll = GetComponent<CapsuleCollider>();
 
         curSpeed = moveSpeed;
+
+        cam = GetComponentInChildren<Camera>();
     }
 
     // Update is called once per frame
@@ -111,12 +115,18 @@ public class PlayerMovement : MonoBehaviour
                 float detectionRadius = 3;
                 Collider[] hitColliders = Physics.OverlapSphere(originTransform.position, detectionRadius, LayerMask.GetMask("Vehicle"));
 
-                Collider firstHit = hitColliders[0];
+                if (hitColliders.Length > 0)
+                {
+                    Collider firstHit = hitColliders[0];
 
-                Vehicle vehicle = firstHit.GetComponent<Vehicle>();
+                    Vehicle vehicle = firstHit.GetComponent<Vehicle>();
 
-                vehicle.getActionMap().Enable();
-                actionMap.Disable();
+                    vehicle.getActionMap().Enable();
+                    actionMap.Disable();
+
+                    vehicle.getCamera().enabled = true;
+                    cam.enabled = false;
+                }
             }
         }
     }

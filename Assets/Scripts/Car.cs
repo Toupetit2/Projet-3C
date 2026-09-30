@@ -7,7 +7,6 @@ using UnityEngine.InputSystem;
 
 public class Car : MonoBehaviour
 {
-    [Header("General")]
     [SerializeField] private InputActionAsset inputActions;
 
     private InputActionMap actionMap;
@@ -17,6 +16,8 @@ public class Car : MonoBehaviour
     private InputAction reverseAction;
 
     private Rigidbody rb;
+
+    private Quaternion rotation;
 
     // Engine
 
@@ -46,6 +47,11 @@ public class Car : MonoBehaviour
 
     [SerializeField] private bool automaticTransmissionActive = true;
 
+    Camera cam;
+    [Header ("Camera Settings")]
+    [SerializeField] private Vector3 camOffset;
+    [SerializeField] private Vector2 camSmoothing;
+
 
 
     private void Awake()
@@ -58,6 +64,10 @@ public class Car : MonoBehaviour
         reverseAction = actionMap.FindAction("Reverse");
 
         rb = GetComponent<Rigidbody>();
+
+        rotation = rb.rotation;
+
+        cam = GetComponentInChildren<Camera>();
     }
 
     // Update is called once per frame
@@ -73,13 +83,29 @@ public class Car : MonoBehaviour
             {
                 Debug.Log("Reverse");
             }
-            //Debug.Log(steerAction.ReadValue<float>());
+
+           
+            rotation *= Quaternion.Euler(steerAction.ReadValue<float>() * 0.01f * Vector3.Dot(rb.linearVelocity, transform.forward), 0, 0);
         }
+
+        // Camera
+
+        Vector3 camObjective = transform.position + gameObject.transform.rotation * camOffset;
+        float camPosX = Mathf.Lerp(cam.transform.position.x, camObjective.x, 0.0001f * Time.deltaTime);
+        float camPosY = Mathf.Lerp(cam.transform.position.y, camObjective.y, 0.0001f * Time.deltaTime);
+        float camPosZ = Mathf.Lerp(cam.transform.position.z, camObjective.z, 0.0001f * Time.deltaTime);
+
+        cam.transform.position = new Vector3(camPosX, camPosY, camPosZ);
+
+        Debug.Log($"{cam.transform.position}, {camObjective}");
+        
     }
 
     private void FixedUpdate()
     {
         simulateEngine();
+
+        rb.MoveRotation(rotation.normalized);
     }
 
     private void simulateEngine() 
@@ -117,7 +143,7 @@ public class Car : MonoBehaviour
 
         rb.AddForce(transform.forward * wheelForce, ForceMode.Force);
 
-        Debug.Log($"Speed:{forwardSpeed}, Gear: {gear}");
+        Debug.Log($"Speed:{forwardSpeed:F2}m/s, Gear: {gear}");
     }
 
     private void automaticTransmission(float engineRpm) 

@@ -7,7 +7,7 @@ using UnityEngine.UIElements;
 public class Vehicle : MonoBehaviour
 {
     [Header("General")]
-    [SerializeField] private InputActionAsset inputActions;
+    [SerializeField] public InputActionAsset inputActions;
     public enum VehicleTypes { Car, Plane };
 
     public VehicleTypes vehicleType;
@@ -15,6 +15,9 @@ public class Vehicle : MonoBehaviour
     private InputActionMap actionMap;
     private InputActionMap playerActionMap;
     private InputAction interactAction;
+
+    [SerializeField] private Camera playerCam;
+    private Camera cam;
 
 
     void Awake()
@@ -25,6 +28,8 @@ public class Vehicle : MonoBehaviour
         playerActionMap = inputActions.FindActionMap("FirstPerson");
 
         interactAction = actionMap.FindAction("Interact");
+
+        cam = gameObject.GetComponentInChildren<Camera>();
     }
 
     // Update is called once per frame
@@ -36,6 +41,10 @@ public class Vehicle : MonoBehaviour
             {
                 actionMap.Disable();
                 playerActionMap.Enable();
+
+                cam.enabled = false;
+                playerCam.enabled = true;
+                
             }
         }
 
@@ -44,5 +53,10 @@ public class Vehicle : MonoBehaviour
     public InputActionMap getActionMap() 
     {
         return actionMap;
+    }
+
+    public Camera getCamera()
+    {
+        return cam;
     }
 }
