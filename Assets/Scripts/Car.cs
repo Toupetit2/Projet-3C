@@ -47,7 +47,7 @@ public class Car : MonoBehaviour
     [SerializeField] private float engineMultiplier = 0.8f;
     [SerializeField] private bool automaticTransmissionActive = true;
     
-    [SerializeField] private float maxBrake = 1;
+    [SerializeField] private float maxBrake = 100f;
     
     
     // Wheels
@@ -137,7 +137,7 @@ public class Car : MonoBehaviour
     {
         float forwardSpeed = Vector3.Dot(rb.linearVelocity, transform.forward);
 
-        float wheelRpm = forwardSpeed / (2 * Mathf.PI * wheelRadius) * 60f;
+        float wheelRpm = (forwardSpeed / (2 * Mathf.PI * wheelRadius) * 60f);
 
         float engineRpm = wheelRpm * gears[gear] * differential_ratio;
 
@@ -165,7 +165,6 @@ public class Car : MonoBehaviour
         {
             throttle = reverseAction.ReadValue<float>();
         }
-            float brake = brakeAction.ReadValue<float>();
 
         float engineTorque = torque * throttle * engineMultiplier;
 
@@ -210,7 +209,7 @@ public class Car : MonoBehaviour
 
             float slipAngle = Mathf.Atan2(sidewaysVelocity, Mathf.Abs(forwardVelocity));
 
-            if (forwardVelocity < 0.1f) 
+            if (Mathf.Abs(forwardVelocity) < 0.1f) 
             {
                 slipAngle = 0;
             }
@@ -226,6 +225,22 @@ public class Car : MonoBehaviour
 
             rb.AddForceAtPosition(lateralForce, wheelPosition);
         }
+
+        // brake
+        float brake = brakeAction.ReadValue<float>();
+
+        Vector3 brakingForce = Vector3.zero;
+
+        if (forwardSpeed > 0.1f) 
+        {
+            brakingForce = -transform.forward * brake * maxBrake;
+        }
+        else if (forwardSpeed < -0.1f)
+        {
+            brakingForce = transform.forward * brake * maxBrake;
+        }
+        
+        rb.AddForce(brakingForce);
     }
 
     private void automaticTransmission(float engineRpm) 
