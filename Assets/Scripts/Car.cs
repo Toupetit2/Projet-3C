@@ -66,14 +66,17 @@ public class Car : MonoBehaviour
     private float D = 1f;
     private float E = 0.5f;
 
+    [SerializeField] private float maxSteeringByUpdate = 1f;
 
+    private float steeringAngle;
 
+    [SerializeField] private float centerWheelSteeringMultiplier = 0.8f;
 
-    Camera cam;
     [Header ("Camera Settings")]
+    private Camera cam;
     [SerializeField] private Vector3 camOffset;
-    [SerializeField] private Vector2 camSmoothing;
-
+    [SerializeField] private Vector3 camSmoothing;
+    private Quaternion camRotationOffset = Quaternion.Euler(20, 0, 0);
 
 
     private void Awake()
@@ -90,6 +93,11 @@ public class Car : MonoBehaviour
         cam = GetComponentInChildren<Camera>();
 
         wheels = new List<Transform>{frontLeftWheel, frontRightWheel, backLeftWheel, backRightWheel};
+    }
+
+    private void Start()
+    {
+        cam.transform.SetParent(transform.parent, false);
     }
 
     // Update is called once per frame
@@ -109,14 +117,14 @@ public class Car : MonoBehaviour
 
         // Camera
 
-        //Vector3 camObjective = transform.position + gameObject.transform.rotation * camOffset;
-        //float camPosX = Mathf.Lerp(cam.transform.position.x, camObjective.x, 0.0001f * Time.deltaTime);
-        //float camPosY = Mathf.Lerp(cam.transform.position.y, camObjective.y, 0.0001f * Time.deltaTime);
-        //float camPosZ = Mathf.Lerp(cam.transform.position.z, camObjective.z, 0.0001f * Time.deltaTime);
+        Vector3 camObjective = transform.position + transform.rotation * camOffset;
+        Quaternion rotationObjective = transform.rotation * camRotationOffset;
+        float camPosX = Mathf.Lerp(cam.transform.position.x, camObjective.x, camSmoothing.x * Time.deltaTime);
+        float camPosY = Mathf.Lerp(cam.transform.position.y, camObjective.y, camSmoothing.y * Time.deltaTime);
+        float camPosZ = Mathf.Lerp(cam.transform.position.z, camObjective.z, camSmoothing.z * Time.deltaTime);
 
-        //cam.transform.position = new Vector3(camPosX, camPosY, camPosZ);
-
-        //Debug.Log($"{cam.transform.position}, {camObjective}");
+        cam.transform.localPosition = new Vector3(camPosX, camPosY, camPosZ);
+        cam.transform.rotation = rotationObjective;
 
     }
 
@@ -148,8 +156,16 @@ public class Car : MonoBehaviour
             torque = (a - b) * Mathf.Exp(-Mathf.Pow((c * (x - d)), 2) / (f * f)) + b;
         }
 
-        float throttle = accelerateAction.ReadValue<float>();
-        float brake = brakeAction.ReadValue<float>();
+        float throttle;
+        if (gear > 0)
+        {
+            throttle = accelerateAction.ReadValue<float>();
+        }
+        else 
+        {
+            throttle = reverseAction.ReadValue<float>();
+        }
+            float brake = brakeAction.ReadValue<float>();
 
         float engineTorque = torque * throttle * engineMultiplier;
 
@@ -159,8 +175,6 @@ public class Car : MonoBehaviour
 
         float acceleration = wheelForce / rb.mass;
 
-        //rb.AddForce(transform.forward * wheelForce, ForceMode.Force);
-
         Vector3 drivingForce = backLeftWheel.forward * wheelForce;
 
         rb.AddForceAtPosition(drivingForce, backLeftWheel.position);
@@ -168,8 +182,15 @@ public class Car : MonoBehaviour
 
         //Debug.Log($"Speed:{forwardSpeed:F2}m/s, Gear: {gear}");
 
-        float steeringAngle = steerAction.ReadValue<float>() * maxSteeringAngle;
 
+        // Steering
+        float steerInput = steerAction.ReadValue<float>();
+        float objectiveAngle = Mathf.Clamp(steeringAngle + steerInput * maxSteeringByUpdate, -maxSteeringAngle, maxSteeringAngle);
+        if (steerInput == 0)
+        {
+            objectiveAngle *= centerWheelSteeringMultiplier * Time.deltaTime;
+        }
+        steeringAngle = steeringAngle + Mathf.Clamp(objectiveAngle- steeringAngle, -maxSteeringByUpdate, maxSteeringByUpdate);
 
 
         frontLeftWheel.localRotation = Quaternion.Euler(0f, steeringAngle, 0f);
@@ -182,7 +203,6 @@ public class Car : MonoBehaviour
             Vector3 wheelForward = wheel.forward;
             Vector3 wheelRight = wheel.right;
 
-            //cote
             Vector3 velocity = rb.GetPointVelocity(wheelPosition);
 
             float forwardVelocity = Vector3.Dot(velocity, wheelForward);
@@ -197,7 +217,7 @@ public class Car : MonoBehaviour
 
             float tireForce = D * Mathf.Sin(C * Mathf.Atan(B * slipAngle - E * (B * slipAngle - Mathf.Atan(B * slipAngle))));
 
-            wheel.GetComponent<Renderer>().material.color = new Color(tireForce, 0, 0);
+            //wheel.GetComponent<Renderer>().material.color = new Color(tireForce, 0, 0);
 
             float lateralForcePower = -tireForce * lateralGripForce;
 
@@ -217,6 +237,14 @@ public class Car : MonoBehaviour
         else if (gear > 1 && engineRpm < 2500)
         {
             gear -= 1;
+        }
+        if (reverseAction.IsPressed() && gear <= 1)
+        {
+            gear = -1;
+        }
+        else if (accelerateAction.IsPressed() && gear < 1)
+        {
+            gear = 1;
         }
     }
 }

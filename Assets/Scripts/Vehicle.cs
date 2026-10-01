@@ -8,7 +8,7 @@ public class Vehicle : MonoBehaviour
 {
     [Header("General")]
     [SerializeField] public InputActionAsset inputActions;
-    public enum VehicleTypes { Car, Plane };
+    public enum VehicleTypes { Car, Helicopter };
 
     public VehicleTypes vehicleType;
 
@@ -16,8 +16,12 @@ public class Vehicle : MonoBehaviour
     private InputActionMap playerActionMap;
     private InputAction interactAction;
 
-    [SerializeField] private Camera playerCam;
+
+    [SerializeField] private GameObject player;
+    private Camera playerCam;
     private Camera cam;
+
+    [SerializeField] private Vector3 respawnPositionOffset;
 
 
     void Awake()
@@ -30,6 +34,8 @@ public class Vehicle : MonoBehaviour
         interactAction = actionMap.FindAction("Interact");
 
         cam = gameObject.GetComponentInChildren<Camera>();
+
+        playerCam = player.GetComponentInChildren<Camera>();
     }
 
     // Update is called once per frame
@@ -45,6 +51,8 @@ public class Vehicle : MonoBehaviour
                 cam.enabled = false;
                 playerCam.enabled = true;
                 
+                player.SetActive(true);
+                player.transform.position = transform.position + respawnPositionOffset;
             }
         }
 
