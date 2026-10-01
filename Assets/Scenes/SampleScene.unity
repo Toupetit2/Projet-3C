@@ -2467,7 +2467,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &1600589780
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4204,7 +4204,7 @@ MonoBehaviour:
   inputActions: {fileID: -944628639613478452, guid: fb0c563a99113be4c91547669131ac24, type: 3}
   engineMultiplier: 0.8
   automaticTransmissionActive: 1
-  maxBrake: 0
+  maxBrake: 5999
   maxSteeringAngle: 35
   lateralGripForce: 3500
   frontLeftWheel: {fileID: 4540241523230802401}
