@@ -76,8 +76,14 @@ public class Car : MonoBehaviour
     private Camera cam;
     [SerializeField] private Vector3 camOffset;
     [SerializeField] private Vector3 camSmoothing;
+    [SerializeField] private int camBaseFOV = 60;
+    [SerializeField] private int camMaxFOV = 80;
+    [SerializeField] private float camMaxFOVSpeed = 100.0f;
     private Quaternion camRotationOffset = Quaternion.Euler(20, 0, 0);
 
+    [Header("Color Settings")]
+    [SerializeField] private List<Color> gearColors;
+    private MeshRenderer meshRenderer;
 
     private void Awake()
     {
@@ -93,6 +99,8 @@ public class Car : MonoBehaviour
         cam = GetComponentInChildren<Camera>();
 
         wheels = new List<Transform>{frontLeftWheel, frontRightWheel, backLeftWheel, backRightWheel};
+
+        meshRenderer = transform.Find("CarMesh").GetComponent<MeshRenderer>();
     }
 
     private void Start()
@@ -172,8 +180,6 @@ public class Car : MonoBehaviour
 
         float wheelForce = wheelTorque / wheelRadius;
 
-        float acceleration = wheelForce / rb.mass;
-
         Vector3 drivingForce = backLeftWheel.forward * wheelForce;
 
         rb.AddForceAtPosition(drivingForce, backLeftWheel.position);
@@ -241,6 +247,8 @@ public class Car : MonoBehaviour
         }
         
         rb.AddForce(brakingForce);
+
+        cam.fieldOfView = Mathf.Lerp(camBaseFOV, camMaxFOV, forwardSpeed/camMaxFOVSpeed);
     }
 
     private void automaticTransmission(float engineRpm) 
@@ -248,18 +256,22 @@ public class Car : MonoBehaviour
         if (gear < gears.Keys.ElementAt(gears.Count - 1) && engineRpm > 5000)
         {
             gear += 1;
+            meshRenderer.material.color = gearColors[gear+1];
         }
         else if (gear > 1 && engineRpm < 2500)
         {
             gear -= 1;
+            meshRenderer.material.color = gearColors[gear + 1];
         }
         if (reverseAction.IsPressed() && gear <= 1)
         {
             gear = -1;
+            meshRenderer.material.color = gearColors[0];
         }
         else if (accelerateAction.IsPressed() && gear < 1)
         {
             gear = 1;
+            meshRenderer.material.color = gearColors[2];
         }
     }
 }

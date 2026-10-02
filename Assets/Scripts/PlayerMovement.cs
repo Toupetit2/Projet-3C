@@ -105,7 +105,7 @@ public class PlayerMovement : MonoBehaviour
 
             // Mouse Look
             Vector3 mouseDelta = lookAction.ReadValue<Vector2>() * sensitivity;
-            Debug.Log(mouseDelta);
+
             yRotation *= Quaternion.Euler(0, (mouseDelta.x / Screen.width) * Time.deltaTime, 0);
 
             curPitch  += (-mouseDelta.y / Screen.height) * Time.deltaTime;

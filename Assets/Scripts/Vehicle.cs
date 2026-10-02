@@ -55,7 +55,6 @@ public class Vehicle : MonoBehaviour
                 player.transform.position = transform.position + respawnPositionOffset;
             }
         }
-
     }
 
     public InputActionMap getActionMap() 
