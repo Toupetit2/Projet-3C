@@ -116,7 +116,7 @@ public class PlayerMovement : MonoBehaviour
             // Interact
             if (interactAction.WasPressedThisFrame()) 
             {
-                float detectionRadius = 3;
+                float detectionRadius = 5;
                 Collider[] hitColliders = Physics.OverlapSphere(originTransform.position, detectionRadius, LayerMask.GetMask("Vehicle"));
 
                 if (hitColliders.Length > 0)

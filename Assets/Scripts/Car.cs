@@ -76,6 +76,7 @@ public class Car : MonoBehaviour
     private Camera cam;
     [SerializeField] private Vector3 camOffset;
     [SerializeField] private Vector3 camSmoothing;
+    [SerializeField] private float camSmoothingRotation;
     [SerializeField] private int camBaseFOV = 60;
     [SerializeField] private int camMaxFOV = 80;
     [SerializeField] private float camMaxFOVSpeed = 100.0f;
@@ -132,7 +133,10 @@ public class Car : MonoBehaviour
         float camPosZ = Mathf.Lerp(cam.transform.position.z, camObjective.z, camSmoothing.z * Time.deltaTime);
 
         cam.transform.localPosition = new Vector3(camPosX, camPosY, camPosZ);
-        cam.transform.rotation = rotationObjective;
+
+        Quaternion camRotation = Quaternion.Slerp(cam.transform.rotation, rotationObjective, camSmoothingRotation * Time.deltaTime);
+
+        cam.transform.rotation = camRotation;
 
     }
 

@@ -8,7 +8,7 @@ public class Vehicle : MonoBehaviour
 {
     [Header("General")]
     [SerializeField] public InputActionAsset inputActions;
-    public enum VehicleTypes { Car, Helicopter };
+    public enum VehicleTypes { Car, Helicopter, Train };
 
     public VehicleTypes vehicleType;
 
