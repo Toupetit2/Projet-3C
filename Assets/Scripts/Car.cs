@@ -112,18 +112,6 @@ public class Car : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (actionMap.enabled) 
-        {
-            if (brakeAction.IsPressed()) 
-            {
-                Debug.Log("Brake");
-            }
-            if (reverseAction.IsPressed()) 
-            {
-                Debug.Log("Reverse");
-            }
-        }
-
         // Camera
 
         Vector3 camObjective = transform.position + transform.rotation * camOffset;

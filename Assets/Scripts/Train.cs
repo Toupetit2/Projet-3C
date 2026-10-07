@@ -1,11 +1,7 @@
-using System.Collections.Generic;
-using Unity.Mathematics;
-using UnityEditor.Rendering.LookDev;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using UnityEngine.Rendering;
 using UnityEngine.Splines;
-using UnityEngine.UIElements;
+using Unity.Mathematics;
 
 public class Train : MonoBehaviour
 {
@@ -36,6 +32,7 @@ public class Train : MonoBehaviour
     [Header("Others")]
     [SerializeField] private float cameraTime;
     [SerializeField] private Transform trainHead;
+    [SerializeField] private GameObject rails;
 
     private void Awake()
     {
@@ -51,6 +48,16 @@ public class Train : MonoBehaviour
         trainParts = GetComponentsInChildren<Transform>();
 
         camList = GetComponentsInChildren<Camera>();
+    }
+
+    private void Start()
+    {
+        for (int i = 0; i < 1000; i++)
+        {
+            spline.Evaluate(i/1000.0f, out float3 p, out float3 t, out float3 uV);
+            Debug.Log($"{i}, {p}");
+            Instantiate(rails, p, Quaternion.LookRotation(t, uV));
+        }
     }
 
     // Update is called once per frame
@@ -72,7 +79,7 @@ public class Train : MonoBehaviour
                 position +=  offset;
                 trainParts[i].position = position;
 
-                trainParts[i].rotation = Quaternion.LookRotation(tangent, upVector);
+                trainParts[i].rotation = UnityEngine.Quaternion.LookRotation(tangent, upVector);
                 j++;
             }
         }
@@ -92,7 +99,6 @@ public class Train : MonoBehaviour
                 }
                 for (int i = 0; i < camList.Length-1; i++) 
                 {
-                    Debug.Log(camList[i].name);
                     if (i == camCurrentID) 
                     {
                         camList[i].GetComponent<Camera>().enabled = true;
