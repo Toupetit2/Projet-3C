@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Unity.Mathematics;
+using UnityEditor.Rendering.LookDev;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.Rendering;
@@ -23,16 +24,18 @@ public class Train : MonoBehaviour
     [Header("Spline")]
     [SerializeField] private SplineContainer splineContainer;
     private Spline spline;
-    private float t = 0.0f; // position sur les rails
+    private float t = 0.95f; // position sur les rails
 
-    // Engine
-    private int maxRpm = 7000;
-    private int a = 250;
-    private int b = 50;
-    private float c = 1;
-    private float d = 0.57f;
-    private float f = 0.30f;
 
+    private Transform[] trainParts;
+    [SerializeField] private float spaceBetweenParts = 0.05f;
+
+    private float timerCam = 0;
+    private int camCurrentID = 0;
+    private Camera[] camList;
+    [Header("Others")]
+    [SerializeField] private float cameraTime;
+    [SerializeField] private Transform trainHead;
 
     private void Awake()
     {
@@ -42,20 +45,66 @@ public class Train : MonoBehaviour
 
         rb = GetComponent<Rigidbody>();
         cam = GetComponentInChildren<Camera>();
+        
         spline = splineContainer[0];
+
+        trainParts = GetComponentsInChildren<Transform>();
+
+        camList = GetComponentsInChildren<Camera>();
     }
 
     // Update is called once per frame
     void Update()
     {
-        float controls = controlsAction.ReadValue<float>();
+        if (actionMap.enabled) 
+        { 
+            float controls = controlsAction.ReadValue<float>();
 
-        t += controls * speed * Time.deltaTime;
+            t += controls * speed * Time.deltaTime;
+        }
 
-        spline.Evaluate(t%1, out float3 position, out float3 tangent, out float3 upVector);
+        int j = 0;
+        for (int i = 0; i < gameObject.GetComponentsInChildren<Transform>().Length; i++) 
+        {
+            if (trainParts[i].name.StartsWith("TrainMesh")) {
+                spline.Evaluate((t+spaceBetweenParts*j) % 1, out float3 position, out float3 tangent, out float3 upVector);
+                float3 offset = transform.up * (transform.localScale.y / 2);
+                position +=  offset;
+                trainParts[i].position = position;
 
-        transform.position = position;
-        transform.rotation = Quaternion.LookRotation(tangent, upVector);
+                trainParts[i].rotation = Quaternion.LookRotation(tangent, upVector);
+                j++;
+            }
+        }
+        transform.position = trainHead.position;
+        if (actionMap.enabled) { 
+            //cam update
+            if (timerCam > cameraTime) 
+            {
+                timerCam = 0;
+                if (camCurrentID < camList.Length - 1) 
+                {
+                    camCurrentID++;
+                }
+                else 
+                {
+                    camCurrentID = 0;
+                }
+                for (int i = 0; i < camList.Length-1; i++) 
+                {
+                    Debug.Log(camList[i].name);
+                    if (i == camCurrentID) 
+                    {
+                        camList[i].GetComponent<Camera>().enabled = true;
+                    }
+                    else 
+                    {
+                        camList[i].GetComponent<Camera>().enabled = false;
+                    }
+                }
+            }
+            timerCam += Time.deltaTime;
+        }
 
     }
 }
