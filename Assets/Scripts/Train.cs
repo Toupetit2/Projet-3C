@@ -1,14 +1,13 @@
+using Unity.Mathematics;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.Splines;
-using Unity.Mathematics;
 
 public class Train : MonoBehaviour
 {
     [Header("Camera")]
     [SerializeField] private InputActionAsset inputActions;
-    [SerializeField] private float speed = 1;
-
 
     private InputActionMap actionMap;
     private InputAction controlsAction;
@@ -34,6 +33,16 @@ public class Train : MonoBehaviour
     [SerializeField] private Transform trainHead;
     [SerializeField] private GameObject rails;
 
+    [Header("Speed")]
+    [SerializeField] private float maxSpeed = 3;
+    [SerializeField] private float acceleration = 1;
+    private float currentSpeed = 0;
+    private float splineLength;
+    private float distance;
+
+
+
+
     private void Awake()
     {
         actionMap = inputActions.FindActionMap("Train");
@@ -58,23 +67,30 @@ public class Train : MonoBehaviour
             Debug.Log($"{i}, {p}");
             Instantiate(rails, p, Quaternion.LookRotation(t, uV));
         }
+
+        splineLength = spline.GetLength();
+        distance = 0.95f * splineLength;
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (actionMap.enabled) 
-        { 
+        if (actionMap.enabled)
+        {
             float controls = controlsAction.ReadValue<float>();
+            float targetSpeed = controls * maxSpeed;
 
-            t += controls * speed * Time.deltaTime;
+            currentSpeed = Mathf.Lerp(currentSpeed, targetSpeed, acceleration * Time.deltaTime);
+            distance += currentSpeed * Time.deltaTime;
+
+            print(currentSpeed);
         }
 
         int j = 0;
         for (int i = 0; i < gameObject.GetComponentsInChildren<Transform>().Length; i++) 
         {
             if (trainParts[i].name.StartsWith("TrainMesh")) {
-                spline.Evaluate((t+spaceBetweenParts*j) % 1, out float3 position, out float3 tangent, out float3 upVector);
+                spline.Evaluate(((distance - spaceBetweenParts * j) / splineLength)% 1, out float3 position, out float3 tangent, out float3 upVector);
                 float3 offset = transform.up * (transform.localScale.y / 2);
                 position +=  offset;
                 trainParts[i].position = position;
@@ -97,7 +113,7 @@ public class Train : MonoBehaviour
                 {
                     camCurrentID = 0;
                 }
-                for (int i = 0; i < camList.Length-1; i++) 
+                for (int i = 0; i < camList.Length; i++) 
                 {
                     if (i == camCurrentID) 
                     {

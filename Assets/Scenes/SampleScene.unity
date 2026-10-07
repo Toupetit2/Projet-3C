@@ -5142,11 +5142,15 @@ PrefabInstance:
     - target: {fileID: 3621754456428562689, guid: ce8d16bc97a3d12449e7c4770667673c, type: 3}
       propertyPath: rails
       value: 
-      objectReference: {fileID: 0}
+      objectReference: {fileID: 1182461962035542190, guid: f7c1972fb7d57f349a42a290d6fc06d9, type: 3}
     - target: {fileID: 3621754456428562689, guid: ce8d16bc97a3d12449e7c4770667673c, type: 3}
       propertyPath: splineContainer
       value: 
       objectReference: {fileID: 720901687}
+    - target: {fileID: 3621754456428562689, guid: ce8d16bc97a3d12449e7c4770667673c, type: 3}
+      propertyPath: spaceBetweenParts
+      value: 21
+      objectReference: {fileID: 0}
     - target: {fileID: 7284501523664520874, guid: ce8d16bc97a3d12449e7c4770667673c, type: 3}
       propertyPath: player
       value: 
