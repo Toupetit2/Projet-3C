@@ -1,3 +1,4 @@
+using MertStudio.Car.Sounds;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -83,6 +84,30 @@ public class Car : MonoBehaviour
     [SerializeField] private List<Color> gearColors;
     private MeshRenderer meshRenderer;
 
+    [Header("Sound Settings")]
+    [SerializeField] private AudioClip idleSound;
+    private AudioSource idleSource;
+    [SerializeField] private AnimationCurve idleVolumeCurve;
+    [SerializeField] private AnimationCurve idlePitchCurve;
+    [SerializeField] private AudioClip lowSound;
+    private AudioSource lowSource;
+    [SerializeField] private AnimationCurve lowVolumeCurve;
+    [SerializeField] private AnimationCurve lowPitchCurve;
+    [SerializeField] private AudioClip mediumSound;
+    private AudioSource mediumSource;
+    [SerializeField] private AnimationCurve mediumVolumeCurve;
+    [SerializeField] private AnimationCurve mediumPitchCurve;
+    [SerializeField] private AudioClip highSound;
+    private AudioSource highSource;
+    [SerializeField] private AnimationCurve highVolumeCurve;
+    [SerializeField] private AnimationCurve highPitchCurve;
+    [SerializeField] private AudioClip limitSound;
+    private AudioSource limitSource;
+    [SerializeField] private AnimationCurve limitVolumeCurve;
+    [SerializeField] private AnimationCurve limitPitchCurve;
+
+    private float rpm = 0;
+
     private void Awake()
     {
         actionMap = inputActions.FindActionMap("Car");
@@ -99,6 +124,38 @@ public class Car : MonoBehaviour
         wheels = new List<Transform>{frontLeftWheel, frontRightWheel, backLeftWheel, backRightWheel};
 
         meshRenderer = transform.Find("CarMesh").GetComponent<MeshRenderer>();
+
+        // Sound
+
+        idleSource = gameObject.AddComponent<AudioSource>();
+        lowSource = gameObject.AddComponent<AudioSource>();
+        mediumSource = gameObject.AddComponent<AudioSource>();
+        highSource = gameObject.AddComponent<AudioSource>();
+        limitSource = gameObject.AddComponent<AudioSource>();
+
+        idleSource.spatialBlend = 1f;
+        lowSource.spatialBlend = 1f;
+        mediumSource.spatialBlend = 1f;
+        highSource.spatialBlend = 1f;
+        limitSource.spatialBlend = 1f;
+
+        idleSource.clip = idleSound;
+        lowSource.clip = lowSound;
+        mediumSource.clip = mediumSound;
+        highSource.clip = highSound;
+        limitSource.clip = limitSound;
+
+        idleSource.loop = true;
+        lowSource.loop = true;
+        mediumSource.loop = true;
+        highSource.loop = true;
+        limitSource.loop = true;
+
+        idleSource.Play();
+        lowSource.Play();
+        mediumSource.Play();
+        highSource.Play();
+        limitSource.Play();
     }
 
     private void Start()
@@ -123,7 +180,22 @@ public class Car : MonoBehaviour
 
         cam.transform.rotation = camRotation;
 
+        // Sound
 
+        idleSource.volume = idleVolumeCurve.Evaluate(rpm/maxRpm);
+        idleSource.pitch = idlePitchCurve.Evaluate(rpm/maxRpm);
+
+        lowSource.volume = lowVolumeCurve.Evaluate(rpm / maxRpm);
+        lowSource.pitch = lowPitchCurve.Evaluate(rpm / maxRpm);
+
+        mediumSource.volume = mediumVolumeCurve.Evaluate(rpm / maxRpm);
+        mediumSource.pitch = mediumPitchCurve.Evaluate(rpm / maxRpm);
+
+        highSource.volume = highVolumeCurve.Evaluate(rpm / maxRpm);
+        highSource.pitch = highPitchCurve.Evaluate(rpm / maxRpm);
+
+        limitSource.volume = limitVolumeCurve.Evaluate(rpm / maxRpm);
+        limitSource.pitch = limitPitchCurve.Evaluate(rpm / maxRpm);
     }
 
     private void FixedUpdate()
@@ -239,6 +311,8 @@ public class Car : MonoBehaviour
         rb.AddForce(brakingForce);
 
         cam.fieldOfView = Mathf.Lerp(camBaseFOV, camMaxFOV, forwardSpeed/camMaxFOVSpeed);
+
+        rpm = engineRpm;
     }
 
     private void automaticTransmission(float engineRpm) 

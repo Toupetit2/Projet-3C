@@ -36,6 +36,11 @@ public class Vehicle : MonoBehaviour
         cam = gameObject.GetComponentInChildren<Camera>();
 
         playerCam = player.GetComponentInChildren<Camera>();
+
+        foreach (Camera c in GetComponentsInChildren<Camera>())
+        {
+            c.GetComponent<AudioListener>().enabled = c.enabled;
+        }
     }
 
     // Update is called once per frame
@@ -50,7 +55,9 @@ public class Vehicle : MonoBehaviour
 
                 cam.enabled = false;
                 playerCam.enabled = true;
-                
+                cam.GetComponent<AudioListener>().enabled = false;
+                playerCam.GetComponent<AudioListener>().enabled = true;
+
                 player.SetActive(true);
                 player.transform.position = transform.position + respawnPositionOffset;
             }

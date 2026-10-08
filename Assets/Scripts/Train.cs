@@ -11,6 +11,7 @@ public class Train : MonoBehaviour
 
     private InputActionMap actionMap;
     private InputAction controlsAction;
+    private InputAction backToRailsAction;
 
     private Rigidbody rb;
 
@@ -52,6 +53,7 @@ public class Train : MonoBehaviour
         actionMap = inputActions.FindActionMap("Train");
 
         controlsAction = actionMap.FindAction("Controls");
+        backToRailsAction = actionMap.FindAction("BackToRails");
 
         rb = GetComponent<Rigidbody>();
         cam = GetComponentInChildren<Camera>();
@@ -85,7 +87,7 @@ public class Train : MonoBehaviour
             float controls;
             if (deraille)
             {
-                controls = -1;
+                controls = -0.5f;
             }
             else 
             {
@@ -95,6 +97,11 @@ public class Train : MonoBehaviour
 
             currentSpeed = Mathf.Lerp(currentSpeed, targetSpeed, acceleration * Time.deltaTime);
             distance += currentSpeed * Time.deltaTime;
+
+            if (backToRailsAction.IsPressed()) 
+            {
+                deraille = false;
+            }
         }
 
         int j = 0;
@@ -114,12 +121,15 @@ public class Train : MonoBehaviour
                 }
                 else
                 {
-                    trainParts[i].position = trainParts[i].position + trainParts[i].forward * Mathf.Max(currentSpeed, 0) * Time.deltaTime * 0.00001f;
-                    print(trainParts[i].forward * Mathf.Max(currentSpeed, 0) * Time.deltaTime * 0.00001f);
+                    trainParts[i].position = trainParts[i].position + trainParts[i].forward * Mathf.Max(currentSpeed, 0) * Time.deltaTime * 1f;
+                    print(trainParts[i].forward * Mathf.Max(currentSpeed, 0) * Time.deltaTime * 1f);
                 }
             }
         }
-        transform.position = trainHead.position;
+        if (!deraille)
+        {
+            transform.position = trainHead.position;
+        }
         if (actionMap.enabled) { 
             //cam update
             if (timerCam > cameraTime) 
@@ -138,10 +148,12 @@ public class Train : MonoBehaviour
                     if (i == camCurrentID) 
                     {
                         camList[i].GetComponent<Camera>().enabled = true;
+                        camList[i].GetComponent<AudioListener>().enabled = true;
                     }
-                    else 
+                    else
                     {
                         camList[i].GetComponent<Camera>().enabled = false;
+                        camList[i].GetComponent<AudioListener>().enabled = false;
                     }
                 }
             }

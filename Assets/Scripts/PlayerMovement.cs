@@ -2,7 +2,6 @@ using Unity.VisualScripting;
 using Unity.VisualScripting.FullSerializer;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using UnityEngine.UIElements;
 
 public class PlayerMovement : MonoBehaviour
 {
@@ -46,7 +45,6 @@ public class PlayerMovement : MonoBehaviour
     private float curPitch = 0;
 
     private Camera cam;
-    private MeshRenderer meshRenderer;
 
     void Awake()
     {
@@ -66,7 +64,8 @@ public class PlayerMovement : MonoBehaviour
 
         cam = GetComponentInChildren<Camera>();
 
-        meshRenderer = GetComponent<MeshRenderer>();
+        Cursor.lockState = CursorLockMode.Locked;
+        Cursor.visible = false;
     }
 
     // Update is called once per frame
@@ -106,10 +105,10 @@ public class PlayerMovement : MonoBehaviour
             // Mouse Look
             Vector3 mouseDelta = lookAction.ReadValue<Vector2>() * sensitivity;
 
-            yRotation *= Quaternion.Euler(0, (mouseDelta.x / Screen.width) * Time.deltaTime, 0);
+            yRotation *= Quaternion.Euler(0, mouseDelta.x, 0);
 
-            curPitch  += (-mouseDelta.y / Screen.height) * Time.deltaTime;
-            curPitch = Mathf.Clamp(curPitch, -90, 90);
+            curPitch -= mouseDelta.y;
+            curPitch = Mathf.Clamp(curPitch, -89, 89);
 
             camHolder.localRotation = Quaternion.Euler(curPitch, 0, 0);
 
@@ -130,6 +129,8 @@ public class PlayerMovement : MonoBehaviour
 
                     vehicle.getCamera().enabled = true;
                     cam.enabled = false;
+                    vehicle.getCamera().GetComponent<AudioListener>().enabled = true;
+                    cam.GetComponent<AudioListener>().enabled = false;
 
                     gameObject.SetActive(false);
                 }
@@ -139,20 +140,29 @@ public class PlayerMovement : MonoBehaviour
 
     private void FixedUpdate()
     {
-        if (actionMap.enabled) {
+        if (actionMap.enabled)
+        {
             rb.MoveRotation(yRotation);
 
-            if (isGrounded) 
+            float verticalVelocity = rb.linearVelocity.y;
+
+            if (isGrounded)
             {
-                rb.linearVelocity = moveVector * curSpeed * Time.deltaTime;
+                Vector3 horizontal = moveVector * curSpeed * Time.deltaTime;
+                rb.linearVelocity = new Vector3(horizontal.x, verticalVelocity, horizontal.z);
             }
-            else 
+            else
             {
-                rb.linearVelocity = moveVector * curSpeed * Time.deltaTime * airControlPower;
+
+                Vector3 target = moveVector * curSpeed * Time.deltaTime;
+                Vector3 current = new Vector3(rb.linearVelocity.x, 0, rb.linearVelocity.z);
+                Vector3 horizontal = Vector3.Lerp(current, target, airControlPower);
+                rb.linearVelocity = new Vector3(horizontal.x, verticalVelocity, horizontal.z);
             }
-            if (jumping) 
+
+            if (jumping)
             {
-                float jumpVel = jumpCurve.Evaluate(jumpTimer / jumpDuration) * jumpForce * Time.deltaTime;
+                float jumpVel = jumpCurve.Evaluate(jumpTimer / jumpDuration) * jumpForce;
                 rb.linearVelocity = new Vector3(rb.linearVelocity.x, jumpVel, rb.linearVelocity.z);
 
                 jumpTimer += Time.deltaTime;
@@ -163,7 +173,7 @@ public class PlayerMovement : MonoBehaviour
                     jumping = false;
                 }
             }
-            else 
+            else
             {
                 rb.AddForce(Vector3.down * additionalGravity, ForceMode.Force);
             }

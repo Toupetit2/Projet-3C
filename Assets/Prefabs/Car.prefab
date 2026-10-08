@@ -238,6 +238,71 @@ MonoBehaviour:
   - {r: 0, g: 1, b: 0.6382046, a: 0}
   - {r: 0.053583145, g: 1, b: 0, a: 0}
   - {r: 0.7628344, g: 1, b: 0, a: 0}
+  idleSound: {fileID: 0}
+  idleVolumeCurve:
+    serializedVersion: 2
+    m_Curve: []
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  idlePitchCurve:
+    serializedVersion: 2
+    m_Curve: []
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  lowSound: {fileID: 0}
+  lowVolumeCurve:
+    serializedVersion: 2
+    m_Curve: []
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  lowPitchCurve:
+    serializedVersion: 2
+    m_Curve: []
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  mediumSound: {fileID: 0}
+  mediumVolumeCurve:
+    serializedVersion: 2
+    m_Curve: []
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  mediumPitchCurve:
+    serializedVersion: 2
+    m_Curve: []
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  highSound: {fileID: 0}
+  highVolumeCurve:
+    serializedVersion: 2
+    m_Curve: []
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  highPitchCurve:
+    serializedVersion: 2
+    m_Curve: []
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  limitSound: {fileID: 0}
+  limitVolumeCurve:
+    serializedVersion: 2
+    m_Curve: []
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  limitPitchCurve:
+    serializedVersion: 2
+    m_Curve: []
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
 --- !u!54 &1085437758924797859
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -769,6 +834,7 @@ GameObject:
   - component: {fileID: 4771480783672284303}
   - component: {fileID: 4841439680743795454}
   - component: {fileID: 7772430390111575642}
+  - component: {fileID: 2971284213384563305}
   m_Layer: 0
   m_Name: Camera
   m_TagString: Untagged
@@ -886,6 +952,14 @@ MonoBehaviour:
     m_VarianceClampScale: 0.9
     m_ContrastAdaptiveSharpening: 0
   m_Version: 2
+--- !u!81 &2971284213384563305
+AudioListener:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7950201274601096361}
+  m_Enabled: 1
 --- !u!1 &7974838648103395039
 GameObject:
   m_ObjectHideFlags: 0
