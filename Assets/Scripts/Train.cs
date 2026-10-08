@@ -30,7 +30,7 @@ public class Train : MonoBehaviour
     private Camera[] camList;
     [Header("Others")]
     [SerializeField] private float cameraTime;
-    [SerializeField] private Transform trainHead;
+    private Transform trainHead;
     [SerializeField] private GameObject rails;
 
     [Header("Speed")]
@@ -39,6 +39,10 @@ public class Train : MonoBehaviour
     private float currentSpeed = 0;
     private float splineLength;
     private float distance;
+
+    [SerializeField] private float derailleRatio = 3000;
+
+    private bool deraille = false;
 
 
 
@@ -57,6 +61,8 @@ public class Train : MonoBehaviour
         trainParts = GetComponentsInChildren<Transform>();
 
         camList = GetComponentsInChildren<Camera>();
+
+        trainHead = trainParts[1];
     }
 
     private void Start()
@@ -64,12 +70,11 @@ public class Train : MonoBehaviour
         for (int i = 0; i < 1000; i++)
         {
             spline.Evaluate(i/1000.0f, out float3 p, out float3 t, out float3 uV);
-            Debug.Log($"{i}, {p}");
             Instantiate(rails, p, Quaternion.LookRotation(t, uV));
         }
 
         splineLength = spline.GetLength();
-        distance = 0.95f * splineLength;
+        distance = 0.99f * splineLength;
     }
 
     // Update is called once per frame
@@ -77,26 +82,41 @@ public class Train : MonoBehaviour
     {
         if (actionMap.enabled)
         {
-            float controls = controlsAction.ReadValue<float>();
+            float controls;
+            if (deraille)
+            {
+                controls = -1;
+            }
+            else 
+            {
+                controls = controlsAction.ReadValue<float>();
+            }
             float targetSpeed = controls * maxSpeed;
 
             currentSpeed = Mathf.Lerp(currentSpeed, targetSpeed, acceleration * Time.deltaTime);
             distance += currentSpeed * Time.deltaTime;
-
-            print(currentSpeed);
         }
 
         int j = 0;
         for (int i = 0; i < gameObject.GetComponentsInChildren<Transform>().Length; i++) 
         {
             if (trainParts[i].name.StartsWith("TrainMesh")) {
-                spline.Evaluate(((distance - spaceBetweenParts * j) / splineLength)% 1, out float3 position, out float3 tangent, out float3 upVector);
-                float3 offset = transform.up * (transform.localScale.y / 2);
-                position +=  offset;
-                trainParts[i].position = position;
+                if (!deraille)
+                {
+                    print("test");
+                    spline.Evaluate(((distance - spaceBetweenParts * j) / splineLength) % 1, out float3 position, out float3 tangent, out float3 upVector);
+                    float3 offset = transform.up * (transform.localScale.y / 2);
+                    position += offset;
+                    trainParts[i].position = position;
 
-                trainParts[i].rotation = UnityEngine.Quaternion.LookRotation(tangent, upVector);
-                j++;
+                    trainParts[i].rotation = UnityEngine.Quaternion.LookRotation(tangent, upVector);
+                    j++;
+                }
+                else
+                {
+                    trainParts[i].position = trainParts[i].position + trainParts[i].forward * Mathf.Max(currentSpeed, 0) * Time.deltaTime * 0.00001f;
+                    print(trainParts[i].forward * Mathf.Max(currentSpeed, 0) * Time.deltaTime * 0.00001f);
+                }
             }
         }
         transform.position = trainHead.position;
@@ -126,6 +146,11 @@ public class Train : MonoBehaviour
                 }
             }
             timerCam += Time.deltaTime;
+        }
+        print(spline.EvaluateCurvature((distance / splineLength) % 1) * derailleRatio * currentSpeed);
+        if (spline.EvaluateCurvature((distance / splineLength) % 1) * derailleRatio * currentSpeed > 1 && currentSpeed > 10) 
+        {
+            deraille = true;
         }
 
     }
