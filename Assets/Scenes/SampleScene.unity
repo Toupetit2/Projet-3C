@@ -4952,7 +4952,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 31321ba15b8f8eb4c954353edc038b1d, type: 2}
+  - {fileID: 2100000, guid: 2991c9901113c534eaae8517245b65ef, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -6371,6 +6371,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Helicopter
       objectReference: {fileID: 0}
+    - target: {fileID: 5232882567000961425, guid: 59159dbaf9bb0474e851866bc65e069e, type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: 042df6e28b7c75a4e9c6353218fbf498, type: 2}
     - target: {fileID: 8431724096937775383, guid: 59159dbaf9bb0474e851866bc65e069e, type: 3}
       propertyPath: player
       value: 

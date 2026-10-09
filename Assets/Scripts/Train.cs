@@ -110,7 +110,6 @@ public class Train : MonoBehaviour
             if (trainParts[i].name.StartsWith("TrainMesh")) {
                 if (!deraille)
                 {
-                    print("test");
                     spline.Evaluate(((distance - spaceBetweenParts * j) / splineLength) % 1, out float3 position, out float3 tangent, out float3 upVector);
                     float3 offset = transform.up * (transform.localScale.y / 2);
                     position += offset;
@@ -122,7 +121,6 @@ public class Train : MonoBehaviour
                 else
                 {
                     trainParts[i].position = trainParts[i].position + trainParts[i].forward * Mathf.Max(currentSpeed, 0) * Time.deltaTime * 1f;
-                    print(trainParts[i].forward * Mathf.Max(currentSpeed, 0) * Time.deltaTime * 1f);
                 }
             }
         }
@@ -159,7 +157,6 @@ public class Train : MonoBehaviour
             }
             timerCam += Time.deltaTime;
         }
-        print(spline.EvaluateCurvature((distance / splineLength) % 1) * derailleRatio * currentSpeed);
         if (spline.EvaluateCurvature((distance / splineLength) % 1) * derailleRatio * currentSpeed > 1 && currentSpeed > 10) 
         {
             deraille = true;
